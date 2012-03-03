@@ -195,4 +195,36 @@ sub dump_post_req {
 
 }
 
+
+sub get_reservas {
+
+    my $self = shift;
+    my $req = shift;
+    $req->{fecha_reserva_desde} ||= "2012-01-01";
+    $req->{fecha_reserva_hasta} ||= "2037-01-01";
+    $req->{fecha_inicio_servicio_desde} ||= "2012-01-01";
+    $req->{fecha_inicio_servicio_hasta} ||= "2037-01-01";
+
+    my $reqx = qq(<integracion accion="reservasfecha">
+<fecha_reserva_desde>$req->{fecha_reserva_desde}</fecha_reserva_desde>
+<fecha_reserva_hasta>$req->{fecha_reserva_hasta}</fecha_reserva_hasta>
+<fecha_inicio_servicio_desde>$req->{fecha_inicio_servicio_desde}</fecha_inicio_servicio_desde>
+<fecha_inicio_servicio_hasta>$req->{fecha_inicio_servicio_hasta}</fecha_inicio_servicio_hasta>
+<update_modification>$req->{update_modification}</update_modification>
+</integracion>
+);
+    my $resp = 
+    $self->xml_integracion($reqx);
+    my @res;
+    
+    while ($resp =~ m#<reserva>(.*?)</reserva>#sg) {
+            push @res, $1;
+    }
+
+#    if ($#res == -1) { warn "zero poblaciones for zona $id_zona: ??$reqx??\n[[$resp]]" }
+#    elsif ($self->{DEBUG}) { print STDERR "got poblaciones ",($#res+1)," for zona $id_zona\n" if $self->{DEBUG}; }
+    return \@res;
+
+
+}
 1;
